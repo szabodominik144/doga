@@ -14,10 +14,15 @@ trap 'echo -e "${RED}Hiba történt a script futása közben!${NC}";
      exit 1' ERR
 
 ### ================== ROOT ELLENŐRZÉS ==================
-if [[ $EUID -ne 0 ]]; then
-  echo -e "${RED}Root jogosultság szükséges!${NC}"
-  echo "A script root jogosultságokkal futtatható, használd a sudo parancsot."
-  exit 1
+if [[ $EUID -eq 0 ]]; then
+  echo -e "${RED}Root user detected. Typical installs should be done as a regular user.${NC}"
+  echo "If you are running this script as root, please cancel and rerun it without sudo."
+  echo "If you still want to proceed as root, continue at your own risk."
+  # Exit immediately if running as root, unless explicitly continued by user
+  read -p "Do you want to continue as root? (y/n): " choice
+  if [[ ! "$choice" =~ ^[Yy]$ ]]; then
+    exit 1
+  fi
 fi
 
 ### ================== SEGÉD FÜGGVÉNYEK ==================
